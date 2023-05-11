@@ -10,7 +10,7 @@
  */
 #include "stm32l4xx_hal.h"
 
-//extern DMA_HandleTypeDef hdma_usart2_tx;
+extern DMA_HandleTypeDef hdma_usart2_tx;
 
 /**
  * @brief This function handles Non maskable interrupt.
@@ -94,5 +94,5 @@ void SysTick_Handler(void)
  */
 void DMA1_Channel7_IRQHandler(void)
 {
-	//HAL_DMA_IRQHandler(&hdma_usart2_tx);
+	HAL_DMA_IRQHandler(&hdma_usart2_tx);
 }
