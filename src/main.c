@@ -14,26 +14,27 @@
 #include "uart.h"
 #include "dma.h"
 #include "eddy.h"
+#include "clima.h"
 
 eddy_t eddy;
+clima_t clima;
 char aRxBuffer[2];
 
 extern UART_HandleTypeDef huart2;
 extern volatile bool ready_in;
+extern clima_command_t asMainCmd[];
 
 void SystemClock_Config(void);
 void Error_Handler(void);
 
 void check_hint(char* cmd_line)
 {
-    UART_print("HINT\n\r");
+    clima.check_command(&clima, cmd_line);
 }
 
 eddy_retv_t exec_command(const char* cmd_line)
 {
-    UART_print("EXEC\n\r");
-
-    return EDDY_RETV_OK;
+    clima.exec_command(&clima, cmd_line);
 }
 
 int main(void)
@@ -45,10 +46,14 @@ int main(void)
 	UART_Init();
 
 	init_eddy(&eddy);
+	init_clima(&clima);
 
 	eddy.set_cli_print_clbk(&eddy, UART_print);
 	eddy.set_check_hint_clbk(&eddy, check_hint);
 	eddy.set_exec_cmd_clbk(&eddy, exec_command);
+
+    clima.set_cli_print_clbk(&clima, UART_print);
+    clima.set_cmds_root(&clima, asMainCmd);
 
 	HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
 	UART_print("Hello in Eddy demo!!!\n\r");
@@ -106,8 +111,7 @@ void SystemClock_Config(void)
 	RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
 	RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-	if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
-	{
+	if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK) {
 		Error_Handler();
 	}
 }
