@@ -11,6 +11,8 @@
 
 #include "stm32l4xx_hal.h"
 #include "gpio.h"
+#include "uart.h"
+#include "dma.h"
 
 void SystemClock_Config(void);
 void Error_Handler(void);
@@ -20,6 +22,10 @@ int main(void)
 	HAL_Init();
 	SystemClock_Config();
 	GPIO_Init();
+    DMA_Init();
+	UART_Init();
+
+	UART_print("HELLO WORLD!!!\n\r");
 
 	while(1) {
 		HAL_Delay(500);
@@ -73,7 +79,8 @@ void SystemClock_Config(void)
 void Error_Handler(void)
 {
 	__disable_irq();
-	while (1) {
-				//Error_Handler
+	while(1) {
+		HAL_Delay(100);
+		HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
 	}
 }
