@@ -13,9 +13,28 @@
 #include "gpio.h"
 #include "uart.h"
 #include "dma.h"
+#include "eddy.h"
+
+eddy_t eddy;
+char aRxBuffer[2];
+
+extern UART_HandleTypeDef huart2;
+extern volatile bool ready_in;
 
 void SystemClock_Config(void);
 void Error_Handler(void);
+
+void check_hint(char* cmd_line)
+{
+    UART_print("HINT\n\r");
+}
+
+eddy_retv_t exec_command(const char* cmd_line)
+{
+    UART_print("EXEC\n\r");
+
+    return EDDY_RETV_OK;
+}
 
 int main(void)
 {
@@ -25,11 +44,28 @@ int main(void)
     DMA_Init();
 	UART_Init();
 
-	UART_print("HELLO WORLD!!!\n\r");
+	init_eddy(&eddy);
+
+	eddy.set_cli_print_clbk(&eddy, UART_print);
+	eddy.set_check_hint_clbk(&eddy, check_hint);
+	eddy.set_exec_cmd_clbk(&eddy, exec_command);
+
+	HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
+	UART_print("Hello in Eddy demo!!!\n\r");
+
+	eddy.show_prompt(&eddy);
 
 	while(1) {
-		HAL_Delay(500);
-		HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+		ready_in = false;
+
+		if(HAL_UART_Receive_IT(&huart2, (uint8_t *)aRxBuffer, 1) != HAL_OK) {
+			Error_Handler();
+		}
+
+		while(ready_in == false) {
+		}
+
+		eddy.put_char(&eddy, aRxBuffer[0]);
 	}
 }
 

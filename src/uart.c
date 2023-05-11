@@ -16,6 +16,7 @@
 
 UART_HandleTypeDef huart2;
 DMA_HandleTypeDef hdma_usart2_tx;
+volatile bool ready_in = false;
 
 void Error_Handler(void);
 
@@ -102,6 +103,10 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 		}
 
 		__HAL_LINKDMA(huart,hdmatx,hdma_usart2_tx);
+
+		/* NVIC for USART */
+		HAL_NVIC_SetPriority(USART2_IRQn, 0, 1);
+		HAL_NVIC_EnableIRQ(USART2_IRQn);
 	}
 }
 
@@ -126,4 +131,14 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
 		/* USART2 DMA DeInit */
 		HAL_DMA_DeInit(huart->hdmatx);
 	}
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
+{
+    ready_in = true;
+}
+
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *UartHandle)
+{
+  	Error_Handler();
 }

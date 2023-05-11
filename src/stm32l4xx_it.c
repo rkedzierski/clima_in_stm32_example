@@ -10,6 +10,7 @@
  */
 #include "stm32l4xx_hal.h"
 
+extern UART_HandleTypeDef huart2;
 extern DMA_HandleTypeDef hdma_usart2_tx;
 
 /**
@@ -87,6 +88,16 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
 	HAL_IncTick();
+}
+
+#include "gpio.h"
+/**
+  * @brief  This function handles UART interrupt request.
+  *   
+  */
+void USART2_IRQHandler(void)
+{
+  HAL_UART_IRQHandler(&huart2);
 }
 
 /**
