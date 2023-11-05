@@ -35,6 +35,8 @@ void check_hint(char* cmd_line)
 eddy_retv_t exec_command(const char* cmd_line)
 {
     clima.exec_command(&clima, cmd_line);
+
+	return EDDY_RETV_OK;
 }
 
 int main(void)
